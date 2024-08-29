@@ -1,6 +1,44 @@
+# Base URL for the API
 @TaskManager.API_HostAddress = http://localhost:5232
 
-GET {{TaskManager.API_HostAddress}}/weatherforecast/
+### Request to get all tasks
+GET {{TaskManager.API_HostAddress}}/tasks/
 Accept: application/json
 
 ###
+
+### Request to get a specific task by ID
+# Replace {id} with an actual task ID
+GET {{TaskManager.API_HostAddress}}/tasks/{id}
+Accept: application/json
+
+###
+
+### Request to create a new task
+POST {{TaskManager.API_HostAddress}}/tasks/
+Content-Type: application/json
+
+{
+  "title": "New Task",
+  "description": "Description of the new task",
+  "completed": false
+}
+
+###
+
+### Request to update an existing task by ID
+# Replace {id} with an actual task ID
+PATCH {{TaskManager.API_HostAddress}}/tasks/{id}
+Content-Type: application/json
+
+{
+  "title": "Updated Task Title",
+  "description": "Updated description",
+  "completed": true
+}
+
+###
+
+### Request to delete a task by ID
+# Replace {id} with an actual task ID
+DELETE {{TaskManager.API_HostAddress}}/tasks/{id}
