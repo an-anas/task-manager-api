@@ -1,5 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace TaskManager.Models
 {
@@ -7,26 +9,22 @@ namespace TaskManager.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string Id { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+        [StringLength(24, MinimumLength = 24)]
+        public string? Id { get; set; }
 
         [BsonElement("title")]
         public required string Title { get; set; }
 
-        [BsonElement("description")] public string? Description { get; set; }
-
         [BsonElement("completed")]
-        public bool? Completed { get; set; }
+        public required bool Completed { get; set; }
+
+        [BsonElement("description")] 
+        public string? Description { get; set; }
 
         // Parameterless constructor needed for MongoDB deserialization
         public TaskItem() { }
 
         // Constructor for easier instantiation
-        public TaskItem(string id, string title, string? description = null, bool? completed = null)
-        {
-            Id = id;
-            Title = title;
-            Description = description;
-            Completed = completed;
-        }
     }
 }

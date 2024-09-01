@@ -7,11 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.API", "TaskMana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.API.Tests", "TaskManager.API.Tests\TaskManager.API.Tests.csproj", "{9F6E5A51-7D93-4487-9658-5053A08F2DB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.Services", "TaskManager.Services\TaskManager.Services.csproj", "{D96B5E9C-21F0-4B60-A192-00196BDA62C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.Services", "TaskManager.Services\TaskManager.Services.csproj", "{D96B5E9C-21F0-4B60-A192-00196BDA62C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.Models", "TaskManager.Models\TaskManager.Models.csproj", "{12B800F6-725E-4C2B-B4E8-EDD9116263E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.Models", "TaskManager.Models\TaskManager.Models.csproj", "{12B800F6-725E-4C2B-B4E8-EDD9116263E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.DataAccess", "TaskManager.DataAccess\TaskManager.DataAccess.csproj", "{83BF72CB-AA0D-490A-B05F-8278508E94A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.DataAccess", "TaskManager.DataAccess\TaskManager.DataAccess.csproj", "{83BF72CB-AA0D-490A-B05F-8278508E94A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.DataAccess.Tests", "TaskManager.DataAccess.Tests\TaskManager.DataAccess.Tests.csproj", "{67DE2475-D0F8-48A4-9828-AA02FA370450}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{83BF72CB-AA0D-490A-B05F-8278508E94A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83BF72CB-AA0D-490A-B05F-8278508E94A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83BF72CB-AA0D-490A-B05F-8278508E94A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67DE2475-D0F8-48A4-9828-AA02FA370450}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67DE2475-D0F8-48A4-9828-AA02FA370450}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67DE2475-D0F8-48A4-9828-AA02FA370450}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67DE2475-D0F8-48A4-9828-AA02FA370450}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

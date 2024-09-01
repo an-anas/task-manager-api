@@ -5,18 +5,29 @@ namespace TaskManager.Services
 {
     public class TaskItemService(ITaskItemRepository repository) : ITaskItemService
     {
-        public async Task<Dictionary<bool, List<TaskItem>>> GetAllTasksByCompletedStatusAsync()
+        public Task<IEnumerable<TaskItem>> GetAllTasksAsync(bool? completed)
         {
-            var tasks = await repository.GetAllTasksAsync();
-            var taskItems = tasks as TaskItem[] ?? tasks.ToArray();
+            return repository.GetAllTasksAsync(completed);
+        }
 
-            var response = new Dictionary<bool, List<TaskItem>>()
-                {
-                    { true, taskItems.Where(task => task.Completed == true).ToList() },
-                    { false, taskItems.Where(task => task.Completed == false).ToList() }
-                };
+        public Task<TaskItem?> GetTaskByIdAsync(string id)
+        {
+            return repository.GetTaskByIdAsync(id);
+        }
 
-            return response;
+        public Task AddTaskAsync(TaskItem task)
+        {
+            return repository.AddTaskAsync(task);
+        }
+
+        public Task<bool> UpdateTaskAsync(string id, TaskItem updatedTask)
+        {
+            return repository.UpdateTaskAsync(id, updatedTask);
+        }
+
+        public Task<bool> DeleteTaskAsync(string id)
+        {
+            return repository.DeleteTaskAsync(id);
         }
     }
 }
