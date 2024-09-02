@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using NUnit.Framework;
 using TaskManager.Models;
 using TaskManager.Services;
 using TaskManager.API.Controllers;
@@ -52,7 +49,7 @@ namespace TaskManager.API.Tests.Controllers
         {
             // Arrange
             _mockService.Setup(service => service.GetTaskByIdAsync(It.IsAny<string>()))
-                        .ReturnsAsync((TaskItem)null);
+                        .ReturnsAsync((TaskItem?)null);
 
             // Act
             var result = await _controller.Get("nonexistent-id") as NotFoundResult;
@@ -78,7 +75,7 @@ namespace TaskManager.API.Tests.Controllers
             Assert.That(result, Is.Not.Null);
             Assert.That(result.StatusCode, Is.EqualTo(201));
             Assert.That(result.ActionName, Is.EqualTo("Get"));
-            Assert.That(((TaskItem)result.Value).Id, Is.EqualTo(task.Id));
+            Assert.That(((TaskItem?)result.Value)?.Id, Is.EqualTo(task.Id));
         }
 
         [Test]

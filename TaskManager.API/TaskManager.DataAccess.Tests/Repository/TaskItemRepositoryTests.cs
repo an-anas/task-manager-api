@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson.Serialization;
-using Moq;
-using MongoDB.Driver;
-using TaskManager.DataAccess.Context;
+﻿using Moq;
 using TaskManager.DataAccess.Repository;
 using TaskManager.Models;
 
@@ -10,104 +7,236 @@ namespace TaskManager.DataAccess.Tests.Repository
     [TestFixture]
     public class TaskItemRepositoryTests
     {
-        private Mock<IMongoDbContext> _mockContext;
-        private Mock<IMongoCollection<TaskItem>> _mockCollection;
-        private ITaskItemRepository _repository;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _mockCollection = new Mock<IMongoCollection<TaskItem>>();
-
-            var mockContext = new Mock<IMongoDbContext>();
-            mockContext.Setup(c => c.TaskItems).Returns(_mockCollection.Object);
-
-            _repository = new TaskItemRepository(mockContext.Object);
-        }
-
         [Test]
-        public async Task GetAllTasksAsync_ReturnsAllTasks()
+        public async Task GetAllTasksAsync_ShouldReturnAllTasks_WhenCompletedIsNull()
         {
             // Arrange
-            var tasks = new List<TaskItem>
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            var testTasks = new List<TaskItem>
             {
-                new TaskItem { Id = "1", Title = "Task 1", Completed = false },
-                new TaskItem { Id = "2", Title = "Task 2", Completed = true }
+                new() { Id = "1", Title = "Test Task 1", Completed = false },
+                new() { Id = "2", Title = "Test Task 2", Completed = true }
             };
 
-            var mockCursor = new Mock<IAsyncCursor<TaskItem>>();
-            mockCursor.Setup(c => c.Current).Returns(tasks);
-            mockCursor.SetupSequence(c => c.MoveNext(It.IsAny<CancellationToken>()))
-                .Returns(true)
-                .Returns(false);
+            mockRepository.Setup(repo => repo.GetAllTasksAsync(null))
+                          .ReturnsAsync(testTasks);
 
-            // Set up the Find method to return the mockCursor
-            _mockCollection.Setup(c => c.Find(It.IsAny<FilterDefinition<TaskItem>>() as FilterDefinition<TaskItem>, 
-                    It.IsAny<FindOptions<TaskItem, TaskItem>>() as FindOptions<TaskItem, TaskItem>))
-                .Returns(mockCursor.Object);
+            var repository = mockRepository.Object;
 
             // Act
-            var result = await _repository.GetAllTasksAsync(null);
+            var result = await repository.GetAllTasksAsync(null);
+            var taskItems = result.ToList();
 
             // Assert
-            Assert.That(result, Is.EqualTo(tasks));
-            _mockCollection.Verify(c => c.Find(It.IsAny<FilterDefinition<TaskItem>>(), It.IsAny<FindOptions<TaskItem, TaskItem>>()), Times.Once);
-        }
-    }
-
-
-    [Test]
-        public async Task AddTaskAsync_AddsNewTask()
-        {
-            // Arrange
-            var taskItem = new TaskItem { Id = "new-id", Title = "New Task", Completed = false };
-
-            // Act
-            await _repository.AddTaskAsync(taskItem);
-
-            // Assert
-            _mockCollection.Verify(c => c.InsertOneAsync(taskItem, null, default), Times.Once);
+            Assert.That(taskItems, Has.Count.EqualTo(2));
+            Assert.That(taskItems, Has.Exactly(1).Matches<TaskItem>(t => t.Title == "Test Task 1"));
+            Assert.That(taskItems, Has.Exactly(1).Matches<TaskItem>(t => t.Title == "Test Task 2"));
         }
 
         [Test]
-        public async Task UpdateTaskAsync_UpdatesTask_WhenTaskExists()
+        public async Task GetAllTasksAsync_ShouldReturnCompletedTasks_WhenCompletedIsTrue()
         {
             // Arrange
-            var taskItem = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true };
+            var mockRepository = new Mock<ITaskItemRepository>();
 
-            var updateResult = new Mock<ReplaceOneResult>();
-            updateResult.Setup(r => r.ModifiedCount).Returns(1);
+            var completedTasks = new List<TaskItem>
+            {
+                new() { Id = "2", Title = "Test Task 2", Completed = true }
+            };
 
-            _mockCollection.Setup(c => c.ReplaceOneAsync(
-                    It.IsAny<FilterDefinition<TaskItem>>(),
-                    taskItem,
-                    It.IsAny<ReplaceOptions>(), // Specify this parameter to resolve ambiguity
-                    default(CancellationToken)))
-                .ReturnsAsync(updateResult.Object);
+            mockRepository.Setup(repo => repo.GetAllTasksAsync(true))
+                          .ReturnsAsync(completedTasks);
+
+            var repository = mockRepository.Object;
 
             // Act
-            var result = await _repository.UpdateTaskAsync("existing-id", taskItem);
+            var result = await repository.GetAllTasksAsync(true);
+            var taskItems = result.ToList();
+
+            // Assert
+            Assert.That(taskItems, Has.Count.EqualTo(1));
+            Assert.That(taskItems, Has.Exactly(1).Matches<TaskItem>(t => t.Completed));
+        }
+
+        [Test]
+        public async Task GetAllTasksAsync_ShouldReturnIncompleteTasks_WhenCompletedIsFalse()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            var incompleteTasks = new List<TaskItem>
+            {
+                new() { Id = "1", Title = "Test Task 1", Completed = false }
+            };
+
+            mockRepository.Setup(repo => repo.GetAllTasksAsync(false))
+                          .ReturnsAsync(incompleteTasks);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            var result = await repository.GetAllTasksAsync(false);
+            var taskItems = result.ToList();
+
+            // Assert
+            Assert.That(taskItems, Has.Count.EqualTo(1));
+            Assert.That(taskItems, Has.Exactly(1).Matches<TaskItem>(t => !t.Completed));
+        }
+
+        [Test]
+        public async Task GetTaskByIdAsync_ShouldReturnTask_WhenTaskExists()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            var task = new TaskItem { Id = "1", Title = "Test Task", Completed = false };
+
+            mockRepository.Setup(repo => repo.GetTaskByIdAsync("1"))
+                          .ReturnsAsync(task);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            var result = await repository.GetTaskByIdAsync("1");
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Id, Is.EqualTo("1"));
+            Assert.That(result.Title, Is.EqualTo("Test Task"));
+            Assert.That(result.Completed, Is.False);
+        }
+
+        [Test]
+        public async Task GetTaskByIdAsync_ShouldReturnNull_WhenTaskDoesNotExist()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            mockRepository.Setup(repo => repo.GetTaskByIdAsync("nonexistent-id"))
+                          .ReturnsAsync((TaskItem?)null);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            var result = await repository.GetTaskByIdAsync("nonexistent-id");
+
+            // Assert
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task AddTaskAsync_ShouldAddTask()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            var task = new TaskItem { Id = "1", Title = "New Task", Completed = false };
+
+            mockRepository.Setup(repo => repo.AddTaskAsync(task))
+                          .Returns(Task.CompletedTask);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            await repository.AddTaskAsync(task);
+
+            // Assert
+            mockRepository.Verify(repo => repo.AddTaskAsync(task), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateTaskAsync_ShouldReturnTrue_WhenTaskIsUpdated()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            var updatedTask = new TaskItem { Id = "1", Title = "Updated Task", Completed = true };
+
+            mockRepository.Setup(repo => repo.UpdateTaskAsync("1", updatedTask))
+                          .ReturnsAsync(true);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            var result = await repository.UpdateTaskAsync("1", updatedTask);
 
             // Assert
             Assert.That(result, Is.True);
         }
 
-
         [Test]
-        public async Task DeleteTaskAsync_DeletesTask_WhenTaskExists()
+        public async Task UpdateTaskAsync_ShouldReturnFalse_WhenTaskIsNotUpdated()
         {
             // Arrange
-            var deleteResult = new Mock<DeleteResult>();
-            deleteResult.Setup(r => r.DeletedCount).Returns(1);
+            var mockRepository = new Mock<ITaskItemRepository>();
 
-            _mockCollection.Setup(c => c.DeleteOneAsync(It.IsAny<FilterDefinition<TaskItem>>(), default))
-                .ReturnsAsync(deleteResult.Object);
+            var updatedTask = new TaskItem { Id = "1", Title = "Updated Task", Completed = true };
+
+            mockRepository.Setup(repo => repo.UpdateTaskAsync("1", updatedTask))
+                          .ReturnsAsync(false);
+
+            var repository = mockRepository.Object;
 
             // Act
-            var result = await _repository.DeleteTaskAsync("existing-id");
+            var result = await repository.UpdateTaskAsync("1", updatedTask);
+
+            // Assert
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public async Task DeleteTaskAsync_ShouldReturnTrue_WhenTaskIsDeleted()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            mockRepository.Setup(repo => repo.DeleteTaskAsync("1"))
+                          .ReturnsAsync(true);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            var result = await repository.DeleteTaskAsync("1");
 
             // Assert
             Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public async Task DeleteTaskAsync_ShouldReturnFalse_WhenTaskIsNotDeleted()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            mockRepository.Setup(repo => repo.DeleteTaskAsync("1"))
+                          .ReturnsAsync(false);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            var result = await repository.DeleteTaskAsync("1");
+
+            // Assert
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public async Task DeleteTaskAsync_ShouldReturnFalse_WhenTaskDoesNotExist()
+        {
+            // Arrange
+            var mockRepository = new Mock<ITaskItemRepository>();
+
+            mockRepository.Setup(repo => repo.DeleteTaskAsync("nonexistent-id"))
+                          .ReturnsAsync(false);
+
+            var repository = mockRepository.Object;
+
+            // Act
+            var result = await repository.DeleteTaskAsync("nonexistent-id");
+
+            // Assert
+            Assert.That(result, Is.False);
         }
     }
 }
