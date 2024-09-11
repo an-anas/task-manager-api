@@ -10,7 +10,16 @@ namespace TaskManager.DataAccess.Context
 
         public MongoDbContext(IConfiguration configuration)
         {
-            var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
+            var connectionString = !string.IsNullOrEmpty(configuration.GetConnectionString("MongoDb"))
+                ? configuration.GetConnectionString("MongoDb")
+                : configuration["MongoDb__ConnectionString"];
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new Exception("MongoDb connection string is missing");
+            }
+
+            var client = new MongoClient(connectionString);
             _database = client.GetDatabase(configuration["DatabaseSettings:DatabaseName"]);
         }
 
