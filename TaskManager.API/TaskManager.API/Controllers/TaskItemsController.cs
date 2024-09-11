@@ -99,8 +99,18 @@ namespace TaskManager.API.Controllers
 
                 existingTask.Completed = completed.Value;
 
-                var updated = await taskItemService.UpdateTaskAsync(id, existingTask);
-                return updated ? Ok() : NoContent(); // NoContent if nothing has been modified
+                var result = await taskItemService.UpdateTaskAsync(id, existingTask);
+
+                if (!result.Found)
+                {
+                    return NotFound();
+                }
+
+                if (!result.Updated)
+                {
+                    return NoContent();
+                }
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -121,8 +131,17 @@ namespace TaskManager.API.Controllers
             {
                 updatedTask.Id = id;
 
-                var updated = await taskItemService.UpdateTaskAsync(id, updatedTask);
-                return updated ? Ok() : NotFound();
+                var result = await taskItemService.UpdateTaskAsync(id, updatedTask);
+                if (!result.Found)
+                {
+                    return NotFound();
+                }
+
+                if (!result.Updated)
+                {
+                    return NoContent();
+                }
+                return Ok();
             }
             catch (Exception ex)
             {

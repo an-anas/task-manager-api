@@ -2,9 +2,11 @@
 using MongoDB.Bson.Serialization.Attributes;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TaskManager.Models
 {
+    [ExcludeFromCodeCoverage]
     public class TaskItem
     {
         [BsonId]

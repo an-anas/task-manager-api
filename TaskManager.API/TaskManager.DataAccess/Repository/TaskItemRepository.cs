@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using TaskManager.DataAccess.Context;
 using TaskManager.Models;
+using UpdateResult = TaskManager.Models.UpdateResult;
 
 namespace TaskManager.DataAccess.Repository
 {
@@ -26,11 +27,15 @@ namespace TaskManager.DataAccess.Repository
             await context.TaskItems.InsertOneAsync(task);
         }
 
-        public async Task<bool> UpdateTaskAsync(string id, TaskItem updatedTask)
+        public async Task<UpdateResult> UpdateTaskAsync(string id, TaskItem updatedTask)
         {
             var result = await context.TaskItems.ReplaceOneAsync(task => task.Id == id, updatedTask);
 
-            return result.ModifiedCount != 0;
+            return new UpdateResult
+            {
+                Found = result.MatchedCount > 0,
+                Updated = result.ModifiedCount > 0
+            };
         }
 
         public async Task<bool> DeleteTaskAsync(string id)

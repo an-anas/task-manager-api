@@ -20,7 +20,7 @@ namespace TaskManager.Services
             return repository.AddTaskAsync(task);
         }
 
-        public Task<bool> UpdateTaskAsync(string id, TaskItem updatedTask)
+        public Task<UpdateResult> UpdateTaskAsync(string id, TaskItem updatedTask)
         {
             return repository.UpdateTaskAsync(id, updatedTask);
         }

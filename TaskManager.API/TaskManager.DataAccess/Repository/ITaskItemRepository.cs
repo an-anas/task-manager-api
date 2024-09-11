@@ -14,7 +14,7 @@ namespace TaskManager.DataAccess.Repository
         Task AddTaskAsync(TaskItem task);
 
         //// Update an existing task
-        Task<bool> UpdateTaskAsync(string id, TaskItem updatedTask);
+        Task<UpdateResult> UpdateTaskAsync(string id, TaskItem updatedTask);
 
         //// Delete a task by its ID
         Task<bool> DeleteTaskAsync(string id);
