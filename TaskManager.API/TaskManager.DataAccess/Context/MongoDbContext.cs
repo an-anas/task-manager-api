@@ -12,7 +12,7 @@ namespace TaskManager.DataAccess.Context
         {
             var connectionString = !string.IsNullOrEmpty(configuration.GetConnectionString("MongoDb"))
                 ? configuration.GetConnectionString("MongoDb")
-                : configuration["MongoDb__ConnectionString"];
+                : Environment.GetEnvironmentVariable("MongoDb__ConnectionString");
 
             if (string.IsNullOrEmpty(connectionString))
             {
