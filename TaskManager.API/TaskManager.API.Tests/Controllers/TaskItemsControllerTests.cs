@@ -114,7 +114,7 @@ namespace TaskManager.API.Tests.Controllers
             _mockService.Setup(service => service.GetTaskByIdAsync(It.IsAny<string>()))
                         .ReturnsAsync(existingTask);
             _mockService.Setup(service => service.UpdateTaskAsync(It.IsAny<string>(), It.IsAny<TaskItem>()))
-                        .ReturnsAsync(true);
+                        .ReturnsAsync(new UpdateResult { Found = true, Updated = true });
 
             // Act
             var result = await _controller.Patch("existing-id", completed: true) as OkResult;
@@ -147,7 +147,7 @@ public async Task Put_ReturnsBadRequest_WhenModelStateIsInvalid()
             var task = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true };
 
             _mockService.Setup(service => service.UpdateTaskAsync(It.IsAny<string>(), It.IsAny<TaskItem>()))
-                        .ReturnsAsync(false);
+                        .ReturnsAsync(new UpdateResult { Found = false, Updated = false });
 
             // Act
             var result = await _controller.Put("existing-id", task) as NotFoundResult;

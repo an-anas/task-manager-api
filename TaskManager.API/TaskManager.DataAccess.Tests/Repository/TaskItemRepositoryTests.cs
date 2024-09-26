@@ -146,15 +146,16 @@ namespace TaskManager.DataAccess.Tests.Repository
         }
 
         [Test]
-        public async Task UpdateTaskAsync_ShouldReturnTrue_WhenTaskIsUpdated()
+        public async Task UpdateTaskAsync_ShouldReturnUpdatedTrue_WhenTaskIsUpdated()
         {
             // Arrange
             var mockRepository = new Mock<ITaskItemRepository>();
+            var updateResult = new UpdateResult { Found = true, Updated = true };
 
             var updatedTask = new TaskItem { Id = "1", Title = "Updated Task", Completed = true };
 
             mockRepository.Setup(repo => repo.UpdateTaskAsync("1", updatedTask))
-                          .ReturnsAsync(true);
+                          .ReturnsAsync(updateResult);
 
             var repository = mockRepository.Object;
 
@@ -162,19 +163,20 @@ namespace TaskManager.DataAccess.Tests.Repository
             var result = await repository.UpdateTaskAsync("1", updatedTask);
 
             // Assert
-            Assert.That(result, Is.True);
+            Assert.That(result, Is.EqualTo(updateResult));
         }
 
         [Test]
-        public async Task UpdateTaskAsync_ShouldReturnFalse_WhenTaskIsNotUpdated()
+        public async Task UpdateTaskAsync_ShouldReturnUpdatedFalse_WhenTaskIsNotUpdated()
         {
             // Arrange
             var mockRepository = new Mock<ITaskItemRepository>();
 
             var updatedTask = new TaskItem { Id = "1", Title = "Updated Task", Completed = true };
+            var updateResult = new UpdateResult { Found = true, Updated = false };
 
             mockRepository.Setup(repo => repo.UpdateTaskAsync("1", updatedTask))
-                          .ReturnsAsync(false);
+                          .ReturnsAsync(updateResult);
 
             var repository = mockRepository.Object;
 
@@ -182,7 +184,7 @@ namespace TaskManager.DataAccess.Tests.Repository
             var result = await repository.UpdateTaskAsync("1", updatedTask);
 
             // Assert
-            Assert.That(result, Is.False);
+            Assert.That(result, Is.EqualTo(updateResult));
         }
 
         [Test]
