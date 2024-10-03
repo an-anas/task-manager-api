@@ -1,5 +1,6 @@
 ﻿using TaskManager.DataAccess.Repository;
 using TaskManager.Models;
+using TaskManager.Services.Interfaces;
 
 namespace TaskManager.Services
 {

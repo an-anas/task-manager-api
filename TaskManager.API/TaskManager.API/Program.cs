@@ -1,6 +1,7 @@
 using TaskManager.DataAccess.Context;
 using TaskManager.DataAccess.Repository;
 using TaskManager.Services;
+using TaskManager.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddScoped<IMongoDbContext, MongoDbContext>();
 builder.Services.AddScoped<ITaskItemRepository, TaskItemRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITaskItemService, TaskItemService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

@@ -2,7 +2,7 @@
 using Moq;
 using TaskManager.API.Controllers;
 using TaskManager.Models.User;
-using TaskManager.Services;
+using TaskManager.Services.Interfaces;
 
 namespace TaskManager.API.Tests.Controllers
 {
