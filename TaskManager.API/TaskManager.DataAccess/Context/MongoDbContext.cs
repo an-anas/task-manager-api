@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using TaskManager.Models;
+using TaskManager.Models.User;
 
 namespace TaskManager.DataAccess.Context
 {
@@ -24,5 +25,6 @@ namespace TaskManager.DataAccess.Context
         }
 
         public IMongoCollection<TaskItem> TaskItems => _database.GetCollection<TaskItem>("tasks");
+        public IMongoCollection<User> Users => _database.GetCollection<User>("users");
     }
 }

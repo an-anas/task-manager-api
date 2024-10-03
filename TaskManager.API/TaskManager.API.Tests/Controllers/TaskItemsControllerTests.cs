@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using TaskManager.Models;
-using TaskManager.Services;
 using TaskManager.API.Controllers;
 using Microsoft.Extensions.Logging;
+using TaskManager.Services.Interfaces;
 
 namespace TaskManager.API.Tests.Controllers
 {
