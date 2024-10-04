@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using TaskManager.Models;
 using TaskManager.Models.User;
 
 namespace TaskManager.DataAccess.Context
 {
+    [ExcludeFromCodeCoverage]
     public class MongoDbContext : IMongoDbContext
     {
         private readonly IMongoDatabase _database;

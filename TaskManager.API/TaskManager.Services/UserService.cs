@@ -4,21 +4,45 @@ using TaskManager.Services.Interfaces;
 
 namespace TaskManager.Services
 {
-    public class UserService(IUserRepository repository) : IUserService
+    public class UserService(IUserRepository userRepository, IAuthService authService) : IUserService
     {
-        public Task<User?> GetUserByIdAsync(string userId)
+        public async Task<string?> LoginAsync(UserLoginDto loginDto)
         {
-            return repository.GetUserByIdAsync(userId);
+            var user = await userRepository.GetUserByUsernameAsync(loginDto.Username);
+            if (user == null || !authService.VerifyPassword(loginDto.Password, user.PasswordHash, user.PasswordSalt))
+            {
+                return null;
+            }
+
+            return authService.GenerateJwtToken(user);
         }
 
-        public Task<string?> LoginAsync(UserLoginDto loginDto)
+        public async Task<User> RegisterAsync(UserRegistrationDto registrationDto)
         {
-            return repository.LoginAsync(loginDto);
-        }
+            var existingUserByUsername = await userRepository.GetUserByUsernameAsync(registrationDto.Username);
+            var existingUserByEmail = await userRepository.GetUserByEmailAsync(registrationDto.Email);
 
-        public Task<User> RegisterAsync(UserRegistrationDto registrationDto)
-        {
-            return repository.RegisterAsync(registrationDto);
+            if (existingUserByUsername != null)
+            {
+                throw new InvalidOperationException("This username is already taken.");
+            }
+
+            if (existingUserByEmail != null)
+            {
+                throw new InvalidOperationException("This email is already registered to a different account.");
+            }
+
+            var (passwordHash, passwordSalt) = authService.HashPassword(registrationDto.Password);
+            var newUser = new User
+            {
+                Username = registrationDto.Username,
+                Email = registrationDto.Email,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt
+            };
+
+            await userRepository.AddUserAsync(newUser);
+            return newUser;
         }
     }
 }
