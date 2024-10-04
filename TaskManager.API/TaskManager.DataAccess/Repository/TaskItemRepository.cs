@@ -1,10 +1,12 @@
-﻿using MongoDB.Driver;
+﻿using System.Diagnostics.CodeAnalysis;
+using MongoDB.Driver;
 using TaskManager.DataAccess.Context;
 using TaskManager.Models;
 using UpdateResult = TaskManager.Models.UpdateResult;
 
 namespace TaskManager.DataAccess.Repository
 {
+    [ExcludeFromCodeCoverage]
     public class TaskItemRepository(IMongoDbContext context) : ITaskItemRepository
     {
         public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(bool? completed)

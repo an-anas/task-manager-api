@@ -36,7 +36,9 @@ namespace TaskManager.API.Tests.Controllers
             var createdUser = new User
             {
                 Username = "test-user",
-                Email = "test@example.com"
+                Email = "test@example.com",
+                PasswordHash = "dummyHash",
+                PasswordSalt = "dummySalt"
             };
 
             // Mock the service to return the created user

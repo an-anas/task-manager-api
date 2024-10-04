@@ -6,6 +6,5 @@ namespace TaskManager.Services.Interfaces
     {
         Task<User> RegisterAsync(UserRegistrationDto registrationDto);
         Task<string?> LoginAsync(UserLoginDto loginDto);
-        Task<User?> GetUserByIdAsync(string userId);
     }
 }
