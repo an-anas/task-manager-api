@@ -21,6 +21,8 @@ namespace TaskManager.Services.Tests
             _authService = new AuthService(_configurationMock.Object);
         }
 
+        // ...
+
         [Test]
         public void VerifyPassword_ValidPassword_ReturnsTrue()
         {
@@ -32,7 +34,7 @@ namespace TaskManager.Services.Tests
             var result = _authService.VerifyPassword(password, storedHash, storedSalt);
 
             // Assert
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -47,7 +49,7 @@ namespace TaskManager.Services.Tests
             var result = _authService.VerifyPassword(incorrectPassword, storedHash, storedSalt);
 
             // Assert
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -60,10 +62,12 @@ namespace TaskManager.Services.Tests
             var (passwordHash, passwordSalt) = _authService.HashPassword(password);
 
             // Assert
-            Assert.IsNotNull(passwordHash);
-            Assert.IsNotNull(passwordSalt);
-            Assert.AreNotEqual(passwordHash, password);
-            Assert.AreNotEqual(passwordSalt, password);
+            Assert.Multiple(() =>
+            {
+                Assert.That(passwordHash, Is.Not.EqualTo(password));
+                Assert.That(passwordSalt, Is.Not.EqualTo(password));
+            });
+
         }
 
         [Test]
@@ -84,23 +88,23 @@ namespace TaskManager.Services.Tests
             var token = _authService.GenerateJwtToken(user);
 
             // Assert
-            Assert.IsNotNull(token);
-            Assert.IsInstanceOf<string>(token);
+            Assert.That(token, Is.Not.Null);
+            Assert.That(token, Is.TypeOf<string>());
 
             // Validate the token
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
-            Assert.IsNotNull(jwtToken);
+            Assert.That(jwtToken, Is.Not.Null);
 
             // Check for unique_name (ClaimTypes.Name is serialized as unique_name in JWT)
             var uniqueNameClaim = jwtToken?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
-            Assert.IsNotNull(uniqueNameClaim);
-            Assert.AreEqual(user.Username, uniqueNameClaim);
+            Assert.That(uniqueNameClaim, Is.Not.Null);
+            Assert.That(uniqueNameClaim, Is.EqualTo(user.Username));
 
             // Check for nameid (ClaimTypes.NameIdentifier)
             var nameIdClaim = jwtToken?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.NameId)?.Value;
-            Assert.AreEqual(user.Id, nameIdClaim);
+            Assert.That(nameIdClaim, Is.EqualTo(user.Id));
         }
 
 
@@ -122,7 +126,7 @@ namespace TaskManager.Services.Tests
 
             // Act & Assert
             var ex = Assert.Throws<InvalidOperationException>(() => _authService.GenerateJwtToken(user));
-            Assert.AreEqual("The Jwt:Secret configuration key must be set.", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("The Jwt:Secret configuration key must be set."));
         }
 
         [Test]
@@ -145,11 +149,10 @@ namespace TaskManager.Services.Tests
             var key = Encoding.ASCII.GetBytes("SuperSecretKeyThatIsAtLeast32CharactersLong");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
+                Subject = new ClaimsIdentity([
                     new Claim(ClaimTypes.NameIdentifier, user.Id!),
                     new Claim(ClaimTypes.Name, user.Username)
-                }),
+                ]),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -161,12 +164,14 @@ namespace TaskManager.Services.Tests
             var claimsPrincipal = _authService.ValidateJwtToken(writtenToken);
 
             // Assert
-            Assert.IsNotNull(claimsPrincipal);
-            Assert.IsTrue(claimsPrincipal.Identity!.IsAuthenticated);
-            Assert.AreEqual("1", claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            Assert.AreEqual("testuser", claimsPrincipal.FindFirst(ClaimTypes.Name)?.Value);
+            Assert.Multiple(() =>
+            {
+                Assert.That(claimsPrincipal, Is.Not.Null);
+                Assert.That(claimsPrincipal.Identity!.IsAuthenticated, Is.True);
+                Assert.That(claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value, Is.EqualTo("1"));
+                Assert.That(claimsPrincipal.FindFirst(ClaimTypes.Name)?.Value, Is.EqualTo("testuser"));
+            });
         }
-
 
         [Test]
         public void ValidateJwtToken_InvalidToken_ThrowsSecurityTokenException()
@@ -200,11 +205,10 @@ namespace TaskManager.Services.Tests
             var key = Encoding.ASCII.GetBytes("SuperSecretKeyThatIsAtLeast32CharactersLong");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
+                Subject = new ClaimsIdentity([
                     new Claim(ClaimTypes.NameIdentifier, user.Id!),
                     new Claim(ClaimTypes.Name, user.Username)
-                }),
+                ]),
                 NotBefore = DateTime.UtcNow.AddSeconds(-60),
                 Expires = DateTime.UtcNow, // Set token to expire immediately
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -215,7 +219,7 @@ namespace TaskManager.Services.Tests
 
             // Act & Assert
             var ex = Assert.Throws<SecurityTokenExpiredException>(() => _authService.ValidateJwtToken(writtenToken));
-            Assert.That(ex.Message, Does.Contain("Token has expired"));
+            Assert.That(ex.Message, Is.EqualTo("Token has expired."));
         }
 
     }
