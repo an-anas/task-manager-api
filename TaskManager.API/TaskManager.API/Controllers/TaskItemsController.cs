@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Models;
 using TaskManager.Services.Interfaces;
 
 namespace TaskManager.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/tasks")]
     public class TaskItemsController(
@@ -41,7 +43,7 @@ namespace TaskManager.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"An error occurred while retrieving task with ID {id}.");
+                logger.LogError(ex, "An error occurred while retrieving task with ID {TaskId}.", id);
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -76,7 +78,7 @@ namespace TaskManager.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"An error occurred while deleting task with ID {id}.");
+                logger.LogError(ex, "An error occurred while deleting task with ID {TaskId}.", id);
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -114,7 +116,7 @@ namespace TaskManager.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"An error occurred while updating task with ID {id}.");
+                logger.LogError(ex, "An error occurred while updating task with ID {TaskId}.", id);
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -145,7 +147,7 @@ namespace TaskManager.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"An error occurred while updating task with ID {id}.");
+                logger.LogError(ex, "An error occurred while updating task with ID {TaskId}.", id);
                 return StatusCode(500, "Internal server error");
             }
         }

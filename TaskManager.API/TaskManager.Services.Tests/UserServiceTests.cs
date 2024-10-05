@@ -26,13 +26,13 @@ namespace TaskManager.Services.Tests
             // Arrange
             var loginDto = new UserLoginDto { Username = "nonexistent", Password = "password" };
             _userRepositoryMock.Setup(repo => repo.GetUserByUsernameAsync(loginDto.Username))
-                .ReturnsAsync((User)null);
+                .ReturnsAsync((User?)null);
 
             // Act
             var result = await _userService.LoginAsync(loginDto);
 
             // Assert
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace TaskManager.Services.Tests
             var result = await _userService.LoginAsync(loginDto);
 
             // Assert
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace TaskManager.Services.Tests
             var result = await _userService.LoginAsync(loginDto);
 
             // Assert
-            Assert.AreEqual(expectedToken, result);
+            Assert.That(result, Is.EqualTo(expectedToken));
         }
 
         [Test]
@@ -86,8 +86,7 @@ namespace TaskManager.Services.Tests
                 .ReturnsAsync(existingUser);
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(registrationDto));
-            Assert.AreEqual("This username is already taken.", ex.Message);
+            Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(registrationDto), "This username is already taken.");
         }
 
         [Test]
@@ -98,13 +97,12 @@ namespace TaskManager.Services.Tests
             var existingUser = new User { Username = "existinguser", Email = "email@example.com", PasswordHash = "hash", PasswordSalt = "salt" };
 
             _userRepositoryMock.Setup(repo => repo.GetUserByUsernameAsync(registrationDto.Username))
-                .ReturnsAsync((User)null);
+                .ReturnsAsync((User?)null);
             _userRepositoryMock.Setup(repo => repo.GetUserByEmailAsync(registrationDto.Email))
                 .ReturnsAsync(existingUser);
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(registrationDto));
-            Assert.AreEqual("This email is already registered to a different account.", ex.Message);
+            Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(registrationDto), "This email is already registered to a different account.");
         }
 
         [Test]
@@ -113,9 +111,9 @@ namespace TaskManager.Services.Tests
             // Arrange
             var registrationDto = new UserRegistrationDto { Username = "newuser", Email = "email@example.com", Password = "password" };
             _userRepositoryMock.Setup(repo => repo.GetUserByUsernameAsync(registrationDto.Username))
-                .ReturnsAsync((User)null);
+                .ReturnsAsync((User?)null);
             _userRepositoryMock.Setup(repo => repo.GetUserByEmailAsync(registrationDto.Email))
-                .ReturnsAsync((User)null);
+                .ReturnsAsync((User?)null);
 
             var (passwordHash, passwordSalt) = ("hashedPassword", "salt");
             _authServiceMock.Setup(auth => auth.HashPassword(registrationDto.Password))
@@ -130,15 +128,18 @@ namespace TaskManager.Services.Tests
             };
 
             _userRepositoryMock.Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .Returns(Task.FromResult<User>(null));
+                .Returns(Task.FromResult<User?>(null));
 
             // Act
             var result = await _userService.RegisterAsync(registrationDto);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(newUser.Username, result.Username);
-            Assert.AreEqual(newUser.Email, result.Email);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.Username, Is.EqualTo(newUser.Username));
+                Assert.That(result.Email, Is.EqualTo(newUser.Email));
+            });
             _userRepositoryMock.Verify(repo => repo.AddUserAsync(It.Is<User>(u => u.Username == newUser.Username)), Times.Once);
         }
     }

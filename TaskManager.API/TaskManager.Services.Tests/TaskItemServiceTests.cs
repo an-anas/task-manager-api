@@ -9,7 +9,7 @@ namespace TaskManager.Services.Tests
     public class TaskItemServiceTests
     {
         private Mock<ITaskItemRepository> _repositoryMock;
-        private ITaskItemService _taskItemService;
+        private TaskItemService _taskItemService;
 
         [SetUp]
         public void Setup()
@@ -24,8 +24,8 @@ namespace TaskManager.Services.Tests
             // Arrange
             var tasks = new List<TaskItem>
             {
-                new TaskItem { Id = "1", Title = "Task 1", Completed = false },
-                new TaskItem { Id = "2", Title = "Task 2", Completed = true }
+                new() { Id = "1", Title = "Task 1", Completed = false },
+                new() { Id = "2", Title = "Task 2", Completed = true }
             };
             _repositoryMock.Setup(repo => repo.GetAllTasksAsync(null)).ReturnsAsync(tasks);
 
@@ -33,9 +33,12 @@ namespace TaskManager.Services.Tests
             var result = await _taskItemService.GetAllTasksAsync(null);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count());
-            Assert.AreEqual("Task 1", result.First().Title);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.Count(), Is.EqualTo(2));
+                Assert.That(result.First().Title, Is.EqualTo("Task 1"));
+            });
         }
 
         [Test]
@@ -49,8 +52,8 @@ namespace TaskManager.Services.Tests
             var result = await _taskItemService.GetTaskByIdAsync("1");
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Task 1", result?.Title);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result?.Title, Is.EqualTo("Task 1"));
         }
 
         [Test]
@@ -98,18 +101,22 @@ namespace TaskManager.Services.Tests
             // Arrange
             var tasks = new List<TaskItem>
             {
-                new TaskItem { Id = "1", Title = "Task 1", Completed = false },
-                new TaskItem { Id = "2", Title = "Task 2", Completed = true }
+                new() { Id = "1", Title = "Task 1", Completed = false },
+                new() { Id = "2", Title = "Task 2", Completed = true }
             };
-            _repositoryMock.Setup(repo => repo.GetAllTasksAsync(true)).ReturnsAsync(new List<TaskItem> { tasks[1] });
+            _repositoryMock.Setup(repo => repo.GetAllTasksAsync(true)).ReturnsAsync((List<TaskItem>) [tasks[1]]);
 
             // Act
             var result = await _taskItemService.GetAllTasksAsync(true);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count());
-            Assert.AreEqual("Task 2", result.First().Title);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.Count(), Is.EqualTo(1));
+                Assert.That(result.First().Title, Is.EqualTo("Task 2"));
+            });
         }
+
     }
 }

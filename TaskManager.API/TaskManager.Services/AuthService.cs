@@ -32,11 +32,10 @@ namespace TaskManager.Services
             var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException("The Jwt:Secret configuration key must be set."));
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
+                Subject = new ClaimsIdentity([
                     new Claim(ClaimTypes.NameIdentifier, user.Id!),
                     new Claim(ClaimTypes.Name, user.Username)
-                }),
+                ]),
                 Expires = DateTime.UtcNow.AddMinutes(5),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
