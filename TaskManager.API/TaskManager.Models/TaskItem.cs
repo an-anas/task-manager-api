@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
@@ -15,18 +16,22 @@ namespace TaskManager.Models
         [StringLength(24, MinimumLength = 24)]
         public string? Id { get; set; }
 
+        [BsonElement("userId")]
+        [SwaggerSchema(ReadOnly = true)]
+        public string? UserId { get; set; }
+
+        [Required]
         [BsonElement("title")]
         public required string Title { get; set; }
 
         [BsonElement("completed")]
+        [DefaultValueAttribute(false)]
         public required bool Completed { get; set; }
 
-        [BsonElement("description")] 
+        [BsonElement("description")]
         public string? Description { get; set; }
 
         // Parameterless constructor needed for MongoDB deserialization
         public TaskItem() { }
-
-        // Constructor for easier instantiation
     }
 }

@@ -6,14 +6,14 @@ namespace TaskManager.Services
 {
     public class TaskItemService(ITaskItemRepository repository) : ITaskItemService
     {
-        public Task<IEnumerable<TaskItem>> GetAllTasksAsync(bool? completed)
+        public Task<IEnumerable<TaskItem>> GetAllTasksAsync(string userId, bool? completed)
         {
-            return repository.GetAllTasksAsync(completed);
+            return repository.GetAllTasksAsync(userId, completed);
         }
 
-        public Task<TaskItem?> GetTaskByIdAsync(string id)
+        public Task<TaskItem?> GetTaskByIdAsync(string taskId, string userId)
         {
-            return repository.GetTaskByIdAsync(id);
+            return repository.GetTaskByIdAsync(taskId, userId);
         }
 
         public Task AddTaskAsync(TaskItem task)
@@ -21,14 +21,14 @@ namespace TaskManager.Services
             return repository.AddTaskAsync(task);
         }
 
-        public Task<UpdateResult> UpdateTaskAsync(string id, TaskItem updatedTask)
+        public Task<UpdateResult> UpdateTaskAsync(string taskId, string userId, TaskItem updatedTask)
         {
-            return repository.UpdateTaskAsync(id, updatedTask);
+            return repository.UpdateTaskAsync(taskId, userId, updatedTask);
         }
 
-        public Task<bool> DeleteTaskAsync(string id)
+        public Task<bool> DeleteTaskAsync(string taskId, string userId)
         {
-            return repository.DeleteTaskAsync(id);
+            return repository.DeleteTaskAsync(taskId, userId);
         }
     }
 }

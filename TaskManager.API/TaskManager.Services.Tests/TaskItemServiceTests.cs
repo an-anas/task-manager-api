@@ -1,7 +1,6 @@
 ﻿using Moq;
 using TaskManager.DataAccess.Repository;
 using TaskManager.Models;
-using TaskManager.Services.Interfaces;
 
 namespace TaskManager.Services.Tests
 {
@@ -19,104 +18,59 @@ namespace TaskManager.Services.Tests
         }
 
         [Test]
-        public async Task GetAllTasksAsync_ReturnsTasks()
+        public void GetAllTasksAsync_CallsRepositoryMethod()
         {
-            // Arrange
-            var tasks = new List<TaskItem>
-            {
-                new() { Id = "1", Title = "Task 1", Completed = false },
-                new() { Id = "2", Title = "Task 2", Completed = true }
-            };
-            _repositoryMock.Setup(repo => repo.GetAllTasksAsync(null)).ReturnsAsync(tasks);
-
             // Act
-            var result = await _taskItemService.GetAllTasksAsync(null);
+            var result = _taskItemService.GetAllTasksAsync("userId", null);
 
             // Assert
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result.Count(), Is.EqualTo(2));
-                Assert.That(result.First().Title, Is.EqualTo("Task 1"));
-            });
+            _repositoryMock.Verify(repo => repo.GetAllTasksAsync("userId", null), Times.Once);
         }
 
         [Test]
-        public async Task GetTaskByIdAsync_ValidId_ReturnsTask()
+        public void GetTaskByIdAsync_CallsRepositoryMethod()
         {
-            // Arrange
-            var task = new TaskItem { Id = "1", Title = "Task 1", Completed = false };
-            _repositoryMock.Setup(repo => repo.GetTaskByIdAsync("1")).ReturnsAsync(task);
-
             // Act
-            var result = await _taskItemService.GetTaskByIdAsync("1");
+            var result = _taskItemService.GetTaskByIdAsync("taskId", "userId");
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result?.Title, Is.EqualTo("Task 1"));
+            _repositoryMock.Verify(repo => repo.GetTaskByIdAsync("taskId", "userId"), Times.Once);
         }
 
         [Test]
-        public async Task AddTaskAsync_CallsRepositoryMethod()
+        public void AddTaskAsync_CallsRepositoryMethod()
         {
             // Arrange
-            var task = new TaskItem { Id = "1", Title = "Task 1", Completed = false };
+            var task = new TaskItem { Id = "1", Title = "Task", UserId = "userId", Completed = false };
 
             // Act
-            await _taskItemService.AddTaskAsync(task);
+            var result = _taskItemService.AddTaskAsync(task);
 
             // Assert
             _repositoryMock.Verify(repo => repo.AddTaskAsync(task), Times.Once);
         }
 
         [Test]
-        public async Task UpdateTaskAsync_ValidId_CallsRepositoryMethod()
+        public void UpdateTaskAsync_CallsRepositoryMethod()
         {
             // Arrange
-            var updatedTask = new TaskItem { Id = "1", Title = "Updated Task", Completed = false };
+            var updatedTask = new TaskItem { Id = "1", Title = "Updated Task", UserId = "userId", Completed = false };
 
             // Act
-            await _taskItemService.UpdateTaskAsync("1", updatedTask);
+            var result = _taskItemService.UpdateTaskAsync("taskId", "userId", updatedTask);
 
             // Assert
-            _repositoryMock.Verify(repo => repo.UpdateTaskAsync("1", updatedTask), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateTaskAsync("taskId", "userId", updatedTask), Times.Once);
         }
 
         [Test]
-        public async Task DeleteTaskAsync_ValidId_CallsRepositoryMethod()
+        public void DeleteTaskAsync_CallsRepositoryMethod()
         {
-            // Arrange
-            string taskId = "1";
-
             // Act
-            await _taskItemService.DeleteTaskAsync(taskId);
+            var result = _taskItemService.DeleteTaskAsync("taskId", "userId");
 
             // Assert
-            _repositoryMock.Verify(repo => repo.DeleteTaskAsync(taskId), Times.Once);
+            _repositoryMock.Verify(repo => repo.DeleteTaskAsync("taskId", "userId"), Times.Once);
         }
-
-        [Test]
-        public async Task GetAllTasksAsync_WithCompletedFilter_ReturnsFilteredTasks()
-        {
-            // Arrange
-            var tasks = new List<TaskItem>
-            {
-                new() { Id = "1", Title = "Task 1", Completed = false },
-                new() { Id = "2", Title = "Task 2", Completed = true }
-            };
-            _repositoryMock.Setup(repo => repo.GetAllTasksAsync(true)).ReturnsAsync((List<TaskItem>) [tasks[1]]);
-
-            // Act
-            var result = await _taskItemService.GetAllTasksAsync(true);
-
-            // Assert
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result.Count(), Is.EqualTo(1));
-                Assert.That(result.First().Title, Is.EqualTo("Task 2"));
-            });
-        }
-
     }
 }
