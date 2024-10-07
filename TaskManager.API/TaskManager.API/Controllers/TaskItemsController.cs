@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Models;
@@ -13,12 +14,14 @@ namespace TaskManager.API.Controllers
         ITaskItemService taskItemService)
         : ControllerBase
     {
+        private string UserId => User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] bool? completed = null)
         {
             try
             {
-                var tasks = await taskItemService.GetAllTasksAsync(completed);
+                var tasks = await taskItemService.GetAllTasksAsync(UserId, completed);
                 return Ok(tasks);
             }
             catch (Exception ex)
@@ -33,7 +36,7 @@ namespace TaskManager.API.Controllers
         {
             try
             {
-                var task = await taskItemService.GetTaskByIdAsync(id);
+                var task = await taskItemService.GetTaskByIdAsync(id, UserId);
                 if (task == null)
                 {
                     return NotFound();
@@ -51,13 +54,15 @@ namespace TaskManager.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TaskItem task)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             try
             {
+                task.UserId = UserId;
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
                 await taskItemService.AddTaskAsync(task);
                 return CreatedAtAction(nameof(Get), new { id = task.Id }, task);
             }
@@ -73,7 +78,7 @@ namespace TaskManager.API.Controllers
         {
             try
             {
-                var deleted = await taskItemService.DeleteTaskAsync(id);
+                var deleted = await taskItemService.DeleteTaskAsync(id, UserId);
                 return deleted ? Ok() : NotFound();
             }
             catch (Exception ex)
@@ -93,7 +98,7 @@ namespace TaskManager.API.Controllers
 
             try
             {
-                var existingTask = await taskItemService.GetTaskByIdAsync(id);
+                var existingTask = await taskItemService.GetTaskByIdAsync(id, UserId);
                 if (existingTask == null)
                 {
                     return NotFound();
@@ -101,7 +106,7 @@ namespace TaskManager.API.Controllers
 
                 existingTask.Completed = completed.Value;
 
-                var result = await taskItemService.UpdateTaskAsync(id, existingTask);
+                var result = await taskItemService.UpdateTaskAsync(id, UserId, existingTask);
 
                 if (!result.Found)
                 {
@@ -133,7 +138,7 @@ namespace TaskManager.API.Controllers
             {
                 updatedTask.Id = id;
 
-                var result = await taskItemService.UpdateTaskAsync(id, updatedTask);
+                var result = await taskItemService.UpdateTaskAsync(id, UserId, updatedTask);
                 if (!result.Found)
                 {
                     return NotFound();

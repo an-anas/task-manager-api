@@ -9,19 +9,24 @@ namespace TaskManager.DataAccess.Repository
     [ExcludeFromCodeCoverage]
     public class TaskItemRepository(IMongoDbContext context) : ITaskItemRepository
     {
-        public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(bool? completed)
+        public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(string userId, bool? completed)
         {
+            var filter = Builders<TaskItem>.Filter.Eq(task => task.UserId, userId);
+
             if (completed.HasValue)
             {
-                return await context.TaskItems.Find(task => task.Completed == completed).ToListAsync();
+                filter &= Builders<TaskItem>.Filter.Eq(task => task.Completed, completed.Value);
             }
 
-            return await context.TaskItems.Find(task => true).ToListAsync();
+            return await context.TaskItems.Find(filter).ToListAsync();
         }
 
-        public async Task<TaskItem?> GetTaskByIdAsync(string id)
+        public async Task<TaskItem?> GetTaskByIdAsync(string taskId, string userId)
         {
-            return await context.TaskItems.Find(task => task.Id == id).FirstOrDefaultAsync();
+            var filter = Builders<TaskItem>.Filter.Eq(task => task.Id, taskId) &
+                         Builders<TaskItem>.Filter.Eq(task => task.UserId, userId);
+
+            return await context.TaskItems.Find(filter).FirstOrDefaultAsync();
         }
 
         public async Task AddTaskAsync(TaskItem task)
@@ -29,9 +34,12 @@ namespace TaskManager.DataAccess.Repository
             await context.TaskItems.InsertOneAsync(task);
         }
 
-        public async Task<UpdateResult> UpdateTaskAsync(string id, TaskItem updatedTask)
+        public async Task<UpdateResult> UpdateTaskAsync(string taskId, string userId, TaskItem updatedTask)
         {
-            var result = await context.TaskItems.ReplaceOneAsync(task => task.Id == id, updatedTask);
+            var filter = Builders<TaskItem>.Filter.Eq(task => task.Id, taskId) &
+                         Builders<TaskItem>.Filter.Eq(task => task.UserId, userId);
+
+            var result = await context.TaskItems.ReplaceOneAsync(filter, updatedTask);
 
             return new UpdateResult
             {
@@ -40,11 +48,12 @@ namespace TaskManager.DataAccess.Repository
             };
         }
 
-        public async Task<bool> DeleteTaskAsync(string id)
+        public async Task<bool> DeleteTaskAsync(string id, string userId)
         {
-            var result = await context.TaskItems.DeleteOneAsync(task => task.Id == id);
+            var filter = Builders<TaskItem>.Filter.Eq(task => task.Id, id) &
+                         Builders<TaskItem>.Filter.Eq(task => task.UserId, userId);
 
-            return result.DeletedCount != 0;
+            return (await context.TaskItems.DeleteOneAsync(filter)).DeletedCount != 0;
         }
     }
 }
