@@ -27,6 +27,8 @@ namespace TaskManager.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
+
                 // Add JWT authentication support to Swagger UI
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
