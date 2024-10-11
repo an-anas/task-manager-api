@@ -137,6 +137,7 @@ namespace TaskManager.API.Controllers
             try
             {
                 updatedTask.Id = id;
+                updatedTask.UserId = UserId;
 
                 var result = await taskItemService.UpdateTaskAsync(id, UserId, updatedTask);
                 if (!result.Found)
