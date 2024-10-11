@@ -4,6 +4,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace TaskManager.Models
 {
@@ -16,6 +17,7 @@ namespace TaskManager.Models
         [StringLength(24, MinimumLength = 24)]
         public string? Id { get; set; }
 
+        [JsonIgnore]
         [BsonElement("userId")]
         [SwaggerSchema(ReadOnly = true)]
         public string? UserId { get; set; }
