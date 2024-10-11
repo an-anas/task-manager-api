@@ -53,9 +53,12 @@ namespace TaskManager.DataAccess.Tests.Repository
             var result = await repository.GetTaskByIdAsync("1", userId);
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo("1"));
-            Assert.That(result.UserId, Is.EqualTo(userId));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.Id, Is.EqualTo("1"));
+                Assert.That(result?.UserId, Is.EqualTo(userId));
+            });
         }
 
         [Test]

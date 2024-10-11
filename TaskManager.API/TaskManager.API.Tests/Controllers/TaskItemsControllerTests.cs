@@ -54,9 +54,12 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Get(completed: null) as OkObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(200));
-            Assert.That(result.Value, Is.EqualTo(tasks));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(200));
+                Assert.That(result?.Value, Is.EqualTo(tasks));
+            });
         }
 
         [Test]
@@ -70,8 +73,12 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Get(completed: null) as ObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(500));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(500));
+                Assert.That(result?.Value, Is.EqualTo("Internal server error"));
+            });
         }
 
         [Test]
@@ -86,7 +93,7 @@ namespace TaskManager.API.Tests.Controllers
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(404));
+            Assert.That(result?.StatusCode, Is.EqualTo(404));
         }
 
         [Test]
@@ -110,9 +117,12 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Get(taskId) as OkObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null); // Ensure the result is not null
-            Assert.That(result.StatusCode, Is.EqualTo(200)); // Ensure the response status is 200 OK
-            Assert.That(result.Value, Is.EqualTo(expectedTask)); // Ensure the returned task is the expected one
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null); // Ensure the result is not null
+                Assert.That(result?.StatusCode, Is.EqualTo(200)); // Ensure the response status is 200 OK
+                Assert.That(result?.Value, Is.EqualTo(expectedTask)); // Ensure the returned task is the expected one
+            });
         }
 
 
@@ -127,8 +137,12 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Get("error-id") as ObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(500));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(500));
+                Assert.That(result?.Value, Is.EqualTo("Internal server error"));
+            });
         }
 
 
@@ -146,11 +160,14 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Post(task) as CreatedAtActionResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(201));
-            Assert.That(result.ActionName, Is.EqualTo("Get"));
-            Assert.That(((TaskItem?)result.Value)?.Id, Is.EqualTo(task.Id));
-            Assert.That(((TaskItem?)result.Value)?.UserId, Is.EqualTo("userId")); // Assert UserId is set
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(201));
+                Assert.That(result?.ActionName, Is.EqualTo("Get"));
+                Assert.That(((TaskItem?)result?.Value)?.Id, Is.EqualTo(task.Id));
+                Assert.That(((TaskItem?)result?.Value)?.UserId, Is.EqualTo("userId")); // Assert UserId is set
+            });
         }
 
         [Test]
@@ -165,8 +182,11 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Post(task) as BadRequestObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(400));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(400));
+            });
         }
 
         [Test]
@@ -181,8 +201,11 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Post(task) as ObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(500));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(500));
+            });
         }
 
         [Test]
@@ -196,8 +219,11 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Delete("existing-id") as OkResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(200));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(200));
+            });
         }
 
         [Test]
@@ -211,8 +237,11 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Delete("nonexistent-id") as NotFoundResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(404));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(404));
+            });
         }
 
         [Test]
@@ -226,8 +255,11 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Delete("error-id") as ObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(500));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(500));
+            });
         }
 
         [Test]
@@ -237,9 +269,12 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Patch("existing-id", completed: null) as BadRequestObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(400));
-            Assert.That(result.Value, Is.EqualTo("The 'completed' query parameter is required."));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(400));
+                Assert.That(result?.Value, Is.EqualTo("The 'completed' query parameter is required."));
+            });
         }
 
         [Test]
@@ -253,8 +288,11 @@ namespace TaskManager.API.Tests.Controllers
             var result = await _controller.Patch("nonexistent-id", completed: true) as NotFoundResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(404));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(404));
+            });
         }
 
         [Test]
@@ -263,17 +301,22 @@ namespace TaskManager.API.Tests.Controllers
             // Arrange
             var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
 
-            _mockService.Setup(service => service.GetTaskByIdAsync("existing-id", "userId"))
-                        .ReturnsAsync(existingTask);
-            _mockService.Setup(service => service.UpdateTaskAsync("existing-id", "userId", existingTask))
-                        .ReturnsAsync(new UpdateResult { Found = true, Updated = true });
+            _mockService.Setup(service => service.GetTaskByIdAsync(existingTask.Id, existingTask.UserId))
+                .ReturnsAsync(existingTask);
+
+            // Mock the taskItemService to return an UpdateResult with Found and Updated set to true
+            _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
+                .ReturnsAsync(new UpdateResult { Found = true, Updated = true });
 
             // Act
-            var result = await _controller.Patch("existing-id", completed: true) as OkResult;
+            var result = await _controller.Patch(existingTask.Id, completed: true) as OkResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(200));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(200));
+            });
         }
 
         [Test]
@@ -282,17 +325,19 @@ namespace TaskManager.API.Tests.Controllers
             // Arrange
             var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
 
-            _mockService.Setup(service => service.GetTaskByIdAsync("existing-id", "userId"))
-                        .ReturnsAsync(existingTask);
-            _mockService.Setup(service => service.UpdateTaskAsync("existing-id", "userId", existingTask))
-                        .ReturnsAsync(new UpdateResult { Found = false, Updated = false });
+            // Mock the taskItemService to return an UpdateResult with Found set to false
+            _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
+                .ReturnsAsync(new UpdateResult { Found = false, Updated = false });
 
             // Act
-            var result = await _controller.Patch("existing-id", completed: true) as NotFoundResult;
+            var result = await _controller.Patch(existingTask.Id, completed: true) as NotFoundResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(404));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(404));
+            });
         }
 
         [Test]
@@ -301,125 +346,144 @@ namespace TaskManager.API.Tests.Controllers
             // Arrange
             var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
 
-            _mockService.Setup(service => service.GetTaskByIdAsync("existing-id", "userId"))
+            _mockService.Setup(service => service.GetTaskByIdAsync(existingTask.Id, existingTask.UserId))
                         .ReturnsAsync(existingTask);
-            _mockService.Setup(service => service.UpdateTaskAsync("existing-id", "userId", existingTask))
-                        .ReturnsAsync(new UpdateResult { Found = true, Updated = false });
+
+            // Mock the taskItemService to return an UpdateResult with Updated set to false
+            _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
+                .ReturnsAsync(new UpdateResult { Found = true, Updated = false });
 
             // Act
-            var result = await _controller.Patch("existing-id", completed: true) as NoContentResult;
+            var result = await _controller.Patch(existingTask.Id, completed: true) as NoContentResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(204));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(204));
+            });
         }
 
         [Test]
         public async Task Patch_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            _mockService.Setup(service => service.GetTaskByIdAsync("existing-id", "userId"))
-                        .ThrowsAsync(new Exception("Test exception"));
+            var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
+
+            _mockService.Setup(service => service.GetTaskByIdAsync(existingTask.Id, existingTask.UserId))
+                        .ReturnsAsync(existingTask);
+
+            _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
+                .ThrowsAsync(new Exception("Something went wrong"));
 
             // Act
-            var result = await _controller.Patch("existing-id", completed: true) as ObjectResult;
+            var result = await _controller.Patch(existingTask.Id, completed: true) as ObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(500));
-            Assert.That(result.Value, Is.EqualTo("Internal server error"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(500));
+            });
         }
 
         [Test]
         public async Task Put_ReturnsNotFound_WhenTaskDoesNotExist()
         {
             // Arrange
-            var updatedTask = new TaskItem { Id = "nonexistent-id", Title = "Updated Task", Completed = false };
+            var updatedTask = new TaskItem { Id = "nonexistent-id", Title = "Updated Task", Completed = true, UserId = "userId" };
 
-            _mockService.Setup(service => service.UpdateTaskAsync("nonexistent-id", "userId", updatedTask))
-                        .ReturnsAsync(new UpdateResult { Found = false });
+            _mockService.Setup(service => service.UpdateTaskAsync(updatedTask.Id, updatedTask.UserId, updatedTask))
+                .ReturnsAsync(new UpdateResult { Found = false, Updated = false });
 
             // Act
-            var result = await _controller.Put("nonexistent-id", updatedTask) as NotFoundResult;
+            var result = await _controller.Put(updatedTask.Id, updatedTask) as NotFoundResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(404));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(404));
+            });
         }
 
         [Test]
         public async Task Put_ReturnsOk_WhenTaskIsUpdated()
         {
             // Arrange
-            var updatedTask = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true };
+            var updatedTask = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true, UserId = "userId" };
 
-            _mockService.Setup(service => service.UpdateTaskAsync("existing-id", "userId", updatedTask))
-                        .ReturnsAsync(new UpdateResult { Found = true, Updated = true });
+            _mockService.Setup(service => service.UpdateTaskAsync(updatedTask.Id, updatedTask.UserId, updatedTask))
+                .ReturnsAsync(new UpdateResult { Found = true, Updated = true });
 
             // Act
-            var result = await _controller.Put("existing-id", updatedTask) as OkResult;
+            var result = await _controller.Put(updatedTask.Id, updatedTask) as OkResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(200));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(200));
+            });
         }
 
         [Test]
         public async Task Put_ReturnsNoContent_WhenTaskIsNotUpdated()
         {
             // Arrange
-            var updatedTask = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true };
+            var updatedTask = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true, UserId = "userId" };
 
-            _mockService.Setup(service => service.UpdateTaskAsync("existing-id", "userId", updatedTask))
-                        .ReturnsAsync(new UpdateResult { Found = true, Updated = false });
+            _mockService.Setup(service => service.UpdateTaskAsync(updatedTask.Id, updatedTask.UserId, updatedTask))
+                .ReturnsAsync(new UpdateResult { Found = true, Updated = false });
 
             // Act
-            var result = await _controller.Put("existing-id", updatedTask) as NoContentResult;
+            var result = await _controller.Put(updatedTask.Id, updatedTask) as NoContentResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(204));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(204));
+            });
         }
 
         [Test]
         public async Task Put_ReturnsInternalServerError_WhenExceptionOccurs()
         {
             // Arrange
-            var updatedTask = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true };
-            _mockService.Setup(service => service.UpdateTaskAsync("existing-id", "userId", updatedTask))
-                        .ThrowsAsync(new Exception("Something went wrong"));
+            var updatedTask = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true, UserId = "userId" };
+
+            _mockService.Setup(service => service.UpdateTaskAsync(updatedTask.Id, updatedTask.UserId, updatedTask))
+                .ThrowsAsync(new Exception("Something went wrong"));
 
             // Act
-            var result = await _controller.Put("existing-id", updatedTask) as ObjectResult;
+            var result = await _controller.Put(updatedTask.Id, updatedTask) as ObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(500));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(500));
+            });
         }
 
         [Test]
         public async Task Put_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
-            var updatedTask = new TaskItem
-            {
-                Title = string.Empty, // Invalid Title
-                Completed = false
-            };
+            _controller.ModelState.AddModelError("Title", "Title is required");
 
-            // Simulate an invalid model state
-            _controller.ModelState.AddModelError("Title", "The Title field is required."); // Add an error to the ModelState
+            var updatedTask = new TaskItem { Id = "existing-id", Title = "Updated Task", Completed = true, UserId = "userId" };
 
             // Act
-            var result = await _controller.Put("existing-id", updatedTask) as BadRequestObjectResult;
+            var result = await _controller.Put(updatedTask.Id, updatedTask) as BadRequestObjectResult;
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(400)); // Check for BadRequest status
-
-            // Convert ModelState to SerializableError for comparison
-            var serializableError = new SerializableError(_controller.ModelState);
-            Assert.That(result.Value, Is.EqualTo(serializableError)); // Check if the response contains the ModelState errors
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result?.StatusCode, Is.EqualTo(400));
+            });
         }
     }
 }

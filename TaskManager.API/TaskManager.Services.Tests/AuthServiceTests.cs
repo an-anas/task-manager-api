@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
+using TaskManager.Common.Helpers;
 using TaskManager.Models.User;
 
 namespace TaskManager.Services.Tests
@@ -11,17 +11,15 @@ namespace TaskManager.Services.Tests
     [TestFixture]
     public class AuthServiceTests
     {
-        private Mock<IConfiguration> _configurationMock;
+        private Mock<IConfigurationHelper> _configurationHelperMock;
         private AuthService _authService;
 
         [SetUp]
         public void SetUp()
         {
-            _configurationMock = new Mock<IConfiguration>();
-            _authService = new AuthService(_configurationMock.Object);
+            _configurationHelperMock = new Mock<IConfigurationHelper>();
+            _authService = new AuthService(_configurationHelperMock.Object);
         }
-
-        // ...
 
         [Test]
         public void VerifyPassword_ValidPassword_ReturnsTrue()
@@ -82,7 +80,8 @@ namespace TaskManager.Services.Tests
                 PasswordHash = "dummyHash",
                 PasswordSalt = "dummySalt"
             };
-            _configurationMock.Setup(config => config["Jwt:Secret"]).Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
+            _configurationHelperMock.Setup(config => config.GetConfigValue("Jwt:Secret"))
+                .Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
 
             // Act
             var token = _authService.GenerateJwtToken(user);
@@ -107,33 +106,12 @@ namespace TaskManager.Services.Tests
             Assert.That(nameIdClaim, Is.EqualTo(user.Id));
         }
 
-
-        [Test]
-        public void GenerateJwtToken_MissingSecret_ThrowsInvalidOperationException()
-        {
-            // Arrange
-            _configurationMock.Setup(config => config["Jwt:Secret"]).Returns((string?)null);
-
-            var user = new User
-            {
-                Id = "1",
-                Username = "testuser",
-                Email = "testuser@example.com",
-                PasswordHash = "dummyHash",
-                PasswordSalt = "dummySalt"
-            };
-            _configurationMock.Setup(config => config["Jwt:Secret"]).Returns((string?)null);
-
-            // Act & Assert
-            var ex = Assert.Throws<InvalidOperationException>(() => _authService.GenerateJwtToken(user));
-            Assert.That(ex.Message, Is.EqualTo("The Jwt:Secret configuration key must be set."));
-        }
-
         [Test]
         public void ValidateJwtToken_ValidToken_ReturnsClaimsPrincipal()
         {
             // Arrange
-            _configurationMock.Setup(config => config["Jwt:Secret"]).Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
+            _configurationHelperMock.Setup(config => config.GetConfigValue("Jwt:Secret"))
+                .Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
 
             var user = new User
             {
@@ -177,7 +155,8 @@ namespace TaskManager.Services.Tests
         public void ValidateJwtToken_InvalidToken_ThrowsSecurityTokenException()
         {
             // Arrange
-            _configurationMock.Setup(config => config["Jwt:Secret"]).Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
+            _configurationHelperMock.Setup(config => config.GetConfigValue("Jwt:Secret"))
+                .Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
             string invalidToken = "invalid.token.here";
 
             // Act & Assert
@@ -189,7 +168,7 @@ namespace TaskManager.Services.Tests
         public void ValidateJwtToken_ExpiredToken_ThrowsSecurityTokenException()
         {
             // Arrange
-            _configurationMock.Setup(config => config["Jwt:Secret"]).Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
+            _configurationHelperMock.Setup(config => config.GetConfigValue("Jwt:Secret")).Returns("SuperSecretKeyThatIsAtLeast32CharactersLong");
 
             var user = new User
             {
@@ -221,6 +200,5 @@ namespace TaskManager.Services.Tests
             var ex = Assert.Throws<SecurityTokenExpiredException>(() => _authService.ValidateJwtToken(writtenToken));
             Assert.That(ex.Message, Is.EqualTo("Token has expired."));
         }
-
     }
 }

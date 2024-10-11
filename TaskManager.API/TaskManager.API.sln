@@ -15,7 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.DataAccess", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.DataAccess.Tests", "TaskManager.DataAccess.Tests\TaskManager.DataAccess.Tests.csproj", "{67DE2475-D0F8-48A4-9828-AA02FA370450}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.Services.Tests", "TaskManager.Services.Tests\TaskManager.Services.Tests.csproj", "{7B6F372A-7FE1-498D-96E6-6E51B84715A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.Services.Tests", "TaskManager.Services.Tests\TaskManager.Services.Tests.csproj", "{7B6F372A-7FE1-498D-96E6-6E51B84715A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.Common", "TaskManager.Common\TaskManager.Common.csproj", "{81ADAFFC-D390-4511-B107-C1B0920C934A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.Common.Tests", "TaskManager.Common.Tests\TaskManager.Common.Tests.csproj", "{1843C9C4-4A6B-4379-A3AF-A1FE36E9DE7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +55,14 @@ Global
 		{7B6F372A-7FE1-498D-96E6-6E51B84715A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B6F372A-7FE1-498D-96E6-6E51B84715A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B6F372A-7FE1-498D-96E6-6E51B84715A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81ADAFFC-D390-4511-B107-C1B0920C934A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81ADAFFC-D390-4511-B107-C1B0920C934A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81ADAFFC-D390-4511-B107-C1B0920C934A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81ADAFFC-D390-4511-B107-C1B0920C934A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1843C9C4-4A6B-4379-A3AF-A1FE36E9DE7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1843C9C4-4A6B-4379-A3AF-A1FE36E9DE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1843C9C4-4A6B-4379-A3AF-A1FE36E9DE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1843C9C4-4A6B-4379-A3AF-A1FE36E9DE7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

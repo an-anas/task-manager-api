@@ -7,24 +7,9 @@ using TaskManager.Models.User;
 namespace TaskManager.DataAccess.Context
 {
     [ExcludeFromCodeCoverage]
-    public class MongoDbContext : IMongoDbContext
+    public class MongoDbContext(IMongoClient mongoClient, string databaseName) : IMongoDbContext
     {
-        private readonly IMongoDatabase _database;
-
-        public MongoDbContext(IConfiguration configuration)
-        {
-            var connectionString = !string.IsNullOrEmpty(configuration.GetConnectionString("MongoDb"))
-                ? configuration.GetConnectionString("MongoDb")
-                : Environment.GetEnvironmentVariable("MongoDb__ConnectionString");
-
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new Exception("MongoDb connection string is missing");
-            }
-
-            var client = new MongoClient(connectionString);
-            _database = client.GetDatabase(configuration["DatabaseSettings:DatabaseName"]);
-        }
+        private readonly IMongoDatabase _database = mongoClient.GetDatabase(databaseName);
 
         public IMongoCollection<TaskItem> TaskItems => _database.GetCollection<TaskItem>("tasks");
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");

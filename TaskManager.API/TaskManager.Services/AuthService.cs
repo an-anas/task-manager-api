@@ -4,12 +4,13 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using TaskManager.Common.Helpers;
 using TaskManager.Models.User;
 using TaskManager.Services.Interfaces;
 
 namespace TaskManager.Services
 {
-    public class AuthService(IConfiguration configuration) : IAuthService
+    public class AuthService(IConfigurationHelper configHelper) : IAuthService
     {
         public bool VerifyPassword(string password, string storedHash, string storedSalt)
         {
@@ -29,7 +30,7 @@ namespace TaskManager.Services
         public string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException("The Jwt:Secret configuration key must be set."));
+            var key = Encoding.ASCII.GetBytes(configHelper.GetConfigValue("Jwt:Secret"));
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity([
@@ -47,9 +48,7 @@ namespace TaskManager.Services
         public ClaimsPrincipal ValidateJwtToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
-                                              ?? throw new InvalidOperationException(
-                                                  "The Jwt:Secret configuration key must be set."));
+            var key = Encoding.ASCII.GetBytes(configHelper.GetConfigValue("Jwt:Secret"));
 
             // Set validation parameters
             var validationParameters = new TokenValidationParameters
