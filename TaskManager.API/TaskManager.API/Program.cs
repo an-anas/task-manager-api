@@ -19,8 +19,8 @@ namespace TaskManager.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Register ConfigurationHelper
-            builder.Services.AddSingleton<IConfigurationHelper>(sp => new ConfigurationHelper(builder.Configuration));
+            var configHelper = new ConfigurationHelper(builder.Configuration);
+            builder.Services.AddSingleton<IConfigurationHelper>(configHelper);
 
             // Add services to the container.
             builder.Services.AddControllers();
@@ -56,10 +56,22 @@ namespace TaskManager.API
                 });
             });
 
+            // CORS policy configuration
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    var allowedOrigins = configHelper.GetConfigValue("CorsSettings:AllowedOrigins").Split(',');
+
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
             // Register MongoDB client and context using ConfigurationHelper
             builder.Services.AddSingleton<IMongoDbContext>(sp =>
             {
-                var configHelper = sp.GetRequiredService<IConfigurationHelper>();
                 var mongoConnectionString = configHelper.GetConfigValue("ConnectionStrings:MongoDb");
                 var databaseName = configHelper.GetConfigValue("DatabaseSettings:DatabaseName");
                 var mongoClient = new MongoClient(mongoConnectionString);
@@ -80,7 +92,7 @@ namespace TaskManager.API
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-                // Get the IConfigurationHelper via the service provider
+                // Set token validation parameters
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -89,13 +101,11 @@ namespace TaskManager.API
                     ClockSkew = TimeSpan.Zero // Set to zero to avoid delay in token expiration
                 };
 
-                // Access the configuration helper
+                // Access the JWT secret from the ConfigurationHelper
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
-                        // Retrieve the IConfigurationHelper to get the JWT secret
-                        var configHelper = context.HttpContext.RequestServices.GetRequiredService<IConfigurationHelper>();
                         var jwtSecret = configHelper.GetConfigValue("Jwt:Secret");
 
                         if (string.IsNullOrEmpty(jwtSecret))
@@ -116,6 +126,7 @@ namespace TaskManager.API
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+            app.UseCors("CorsPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
 
