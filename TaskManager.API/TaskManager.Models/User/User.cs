@@ -20,4 +20,10 @@ public class User
 
     [BsonElement("passwordSalt")]
     public required string PasswordSalt { get; set; }
+
+    [BsonElement("refreshToken")]
+    public string? RefreshToken { get; set; }
+
+    [BsonElement("refreshTokenExpiration")]
+    public DateTime RefreshTokenExpiration { get; set; }
 }

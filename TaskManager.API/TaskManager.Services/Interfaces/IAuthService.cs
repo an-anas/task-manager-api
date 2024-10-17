@@ -1,11 +1,12 @@
-﻿using TaskManager.Models.User;
+﻿using TaskManager.Models.Auth;
+using TaskManager.Models.User;
 
 namespace TaskManager.Services.Interfaces
 {
     public interface IAuthService
     {
-        bool VerifyPassword(string password, string storedHash, string storedSalt);
-        (string PasswordHash, string PasswordSalt) HashPassword(string password);
-        string GenerateJwtToken(User user);
+        bool VerifyPassword(VerifyPasswordModel model);
+        PasswordHashModel HashPassword(string password);
+        TokenResponseModel GenerateTokens(User user);
     }
 }

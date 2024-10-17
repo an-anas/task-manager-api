@@ -2,42 +2,70 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using TaskManager.Common.Helpers;
+using TaskManager.Models.Auth;
 using TaskManager.Models.User;
 using TaskManager.Services.Interfaces;
 
 namespace TaskManager.Services
 {
-    public class AuthService(IConfigurationHelper configHelper) : IAuthService
+    public class AuthService : IAuthService
     {
-        public bool VerifyPassword(string password, string storedHash, string storedSalt)
+        private readonly int _tokenExpirationInMinutes;
+        private readonly int _refreshTokenExpirationInDays;
+        private readonly IConfigurationHelper _configHelper;
+
+        public AuthService(IConfigurationHelper configHelper)
         {
-            using var hmac = new HMACSHA512(Convert.FromBase64String(storedSalt));
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(computedHash) == storedHash;
+            _configHelper = configHelper;
+            _tokenExpirationInMinutes = int.Parse(_configHelper.GetConfigValue("Jwt:TokenExpirationInMinutes"));
+            _refreshTokenExpirationInDays = int.Parse(_configHelper.GetConfigValue("Jwt:RefreshTokenExpirationInDays"));
         }
 
-        public (string PasswordHash, string PasswordSalt) HashPassword(string password)
+        public bool VerifyPassword(VerifyPasswordModel model)
+        {
+            using var hmac = new HMACSHA512(Convert.FromBase64String(model.StoredSalt));
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(model.Password));
+            return Convert.ToBase64String(computedHash) == model.StoredHash;
+        }
+
+        public PasswordHashModel HashPassword(string password)
         {
             using var hmac = new HMACSHA512();
             var passwordSalt = Convert.ToBase64String(hmac.Key);
             var passwordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
-            return (passwordHash, passwordSalt);
+            return new PasswordHashModel
+            {
+                Hash = passwordHash,
+                Salt = passwordSalt
+            };
         }
 
-        public string GenerateJwtToken(User user)
+        public TokenResponseModel GenerateTokens(User user)
+        {
+            var accessToken = GenerateAccessToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            return new TokenResponseModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(_refreshTokenExpirationInDays)
+            };
+        }
+
+        private string GenerateAccessToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configHelper.GetConfigValue("Jwt:Secret"));
+            var key = Encoding.ASCII.GetBytes(_configHelper.GetConfigValue("Jwt:Secret"));
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity([
                     new Claim(ClaimTypes.NameIdentifier, user.Id!),
                     new Claim(ClaimTypes.Name, user.Username)
                 ]),
-                Expires = DateTime.UtcNow.AddMinutes(5),
+                Expires = DateTime.UtcNow.AddMinutes(_tokenExpirationInMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -45,37 +73,12 @@ namespace TaskManager.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public ClaimsPrincipal ValidateJwtToken(string token)
+        private static string GenerateRefreshToken()
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configHelper.GetConfigValue("Jwt:Secret"));
-
-            // Set validation parameters
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false, // Set true if you want to validate the issuer
-                ValidateAudience = false, // Set true if you want to validate the audience
-                ClockSkew = TimeSpan.Zero // Set to zero to avoid delay in token expiration
-            };
-
-            try
-            {
-                // Validate the token and extract claims
-                return tokenHandler.ValidateToken(token, validationParameters, out _);
-            }
-            catch (Exception ex)
-            {
-                if (ex is SecurityTokenExpiredException)
-                {
-                    throw new SecurityTokenExpiredException("Token has expired.");
-                }
-
-                // Handle token validation failure (e.g., logging, rethrowing, etc.)
-                throw new SecurityTokenException("Invalid token.");
-            }
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
-
     }
 }

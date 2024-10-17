@@ -23,9 +23,19 @@ namespace TaskManager.DataAccess.Repository
             return await context.Users.Find(u => u.Email == email).FirstOrDefaultAsync();
         }
 
+        public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
+        {
+            return await context.Users.Find(u => u.RefreshToken == refreshToken).FirstOrDefaultAsync();
+        }
+
         public async Task AddUserAsync(User newUser)
         {
             await context.Users.InsertOneAsync(newUser);
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            await context.Users.ReplaceOneAsync(u => u.Id == user.Id, user);
         }
     }
 }

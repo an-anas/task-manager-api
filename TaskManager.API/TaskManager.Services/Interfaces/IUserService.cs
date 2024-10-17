@@ -1,10 +1,12 @@
-﻿using TaskManager.Models.User;
+﻿using TaskManager.Models.Common;
+using TaskManager.Models.User;
 
 namespace TaskManager.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<User> RegisterAsync(UserRegistrationDto registrationDto);
-        Task<string?> LoginAsync(UserLoginDto loginDto);
+        Task<UserLoginResponse?> LoginAsync(UserLoginDto model);
+        Task<ResponseDto<UserRegistrationResponse>> RegisterAsync(UserRegistrationDto registrationDto);
+        Task<UserLoginResponse?> RefreshTokenAsync(RefreshTokenRequest request);
     }
 }

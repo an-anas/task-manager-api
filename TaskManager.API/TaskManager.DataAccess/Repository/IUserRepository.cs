@@ -6,6 +6,8 @@ namespace TaskManager.DataAccess.Repository
     {
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByEmailAsync(string email);
+        Task<User?> GetUserByRefreshTokenAsync(string refreshToken);
         Task AddUserAsync(User newUser);
+        Task UpdateUserAsync(User user);
     }
 }

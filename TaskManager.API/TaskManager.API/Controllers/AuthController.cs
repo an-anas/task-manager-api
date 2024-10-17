@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskManager.Models.Common;
 using TaskManager.Models.User;
 using TaskManager.Services.Interfaces;
 
@@ -13,19 +14,40 @@ namespace TaskManager.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationDto model)
         {
-            var user = await userService.RegisterAsync(model);
-            return Ok(new UserRegistrationResponse { Username = user.Username, Email = user.Email });
+            var registrationResponse = await userService.RegisterAsync(model);
+
+            if (!registrationResponse.Success)
+            {
+                return BadRequest(registrationResponse.ErrorMessage);
+            }
+
+            return Ok(registrationResponse.Data);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto model)
         {
-            var token = await userService.LoginAsync(model);
+            var authResponse = await userService.LoginAsync(model);
 
-            if (token == null)
+            if (authResponse == null)
+            {
                 return Unauthorized("Invalid credentials");
+            }
 
-            return Ok(new UserLoginResponse { Token = token });
+            return Ok(authResponse);
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest model)
+        {
+            var authResponse = await userService.RefreshTokenAsync(model);
+
+            if (authResponse == null)
+            {
+                return Unauthorized("Invalid refresh token");
+            }
+
+            return Ok(authResponse);
         }
     }
 }

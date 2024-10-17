@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using TaskManager.Models;
 using TaskManager.Models.User;
