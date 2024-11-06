@@ -89,11 +89,11 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpPatch("{id:length(24)}")]
-        public async Task<IActionResult> Patch(string id, [FromQuery] bool? completed)
+        public async Task<IActionResult> Patch(string id, [FromBody] UpdateTaskRequest updateRequest)
         {
-            if (completed == null)
+            if (updateRequest.Completed == null)
             {
-                return BadRequest("The 'completed' query parameter is required.");
+                return BadRequest("The 'completed' field is required.");
             }
 
             try
@@ -104,7 +104,7 @@ namespace TaskManager.API.Controllers
                     return NotFound();
                 }
 
-                existingTask.Completed = completed.Value;
+                existingTask.Completed = updateRequest.Completed.Value;
 
                 var result = await taskItemService.UpdateTaskAsync(id, UserId, existingTask);
 

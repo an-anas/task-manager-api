@@ -265,15 +265,18 @@ namespace TaskManager.API.Tests.Controllers
         [Test]
         public async Task Patch_ReturnsBadRequest_WhenCompletedIsNull()
         {
+            // Arrange
+            var updateRequest = new UpdateTaskRequest { Completed = null };
+
             // Act
-            var result = await _controller.Patch("existing-id", completed: null) as BadRequestObjectResult;
+            var result = await _controller.Patch("existing-id", updateRequest) as BadRequestObjectResult;
 
             // Assert
             Assert.Multiple(() =>
             {
                 Assert.That(result, Is.Not.Null);
                 Assert.That(result?.StatusCode, Is.EqualTo(400));
-                Assert.That(result?.Value, Is.EqualTo("The 'completed' query parameter is required."));
+                Assert.That(result?.Value, Is.EqualTo("The 'completed' field is required."));
             });
         }
 
@@ -281,11 +284,12 @@ namespace TaskManager.API.Tests.Controllers
         public async Task Patch_ReturnsNotFound_WhenTaskDoesNotExist()
         {
             // Arrange
+            var updateRequest = new UpdateTaskRequest { Completed = true };
             _mockService.Setup(service => service.GetTaskByIdAsync("nonexistent-id", "userId"))
                         .ReturnsAsync((TaskItem?)null);
 
             // Act
-            var result = await _controller.Patch("nonexistent-id", completed: true) as NotFoundResult;
+            var result = await _controller.Patch("nonexistent-id", updateRequest) as NotFoundResult;
 
             // Assert
             Assert.Multiple(() =>
@@ -300,16 +304,16 @@ namespace TaskManager.API.Tests.Controllers
         {
             // Arrange
             var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
+            var updateRequest = new UpdateTaskRequest { Completed = true };
 
             _mockService.Setup(service => service.GetTaskByIdAsync(existingTask.Id, existingTask.UserId))
-                .ReturnsAsync(existingTask);
+                        .ReturnsAsync(existingTask);
 
-            // Mock the taskItemService to return an UpdateResult with Found and Updated set to true
             _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
-                .ReturnsAsync(new UpdateResult { Found = true, Updated = true });
+                        .ReturnsAsync(new UpdateResult { Found = true, Updated = true });
 
             // Act
-            var result = await _controller.Patch(existingTask.Id, completed: true) as OkResult;
+            var result = await _controller.Patch(existingTask.Id, updateRequest) as OkResult;
 
             // Assert
             Assert.Multiple(() =>
@@ -324,13 +328,13 @@ namespace TaskManager.API.Tests.Controllers
         {
             // Arrange
             var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
+            var updateRequest = new UpdateTaskRequest { Completed = true };
 
-            // Mock the taskItemService to return an UpdateResult with Found set to false
             _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
-                .ReturnsAsync(new UpdateResult { Found = false, Updated = false });
+                        .ReturnsAsync(new UpdateResult { Found = false, Updated = false });
 
             // Act
-            var result = await _controller.Patch(existingTask.Id, completed: true) as NotFoundResult;
+            var result = await _controller.Patch(existingTask.Id, updateRequest) as NotFoundResult;
 
             // Assert
             Assert.Multiple(() =>
@@ -345,16 +349,16 @@ namespace TaskManager.API.Tests.Controllers
         {
             // Arrange
             var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
+            var updateRequest = new UpdateTaskRequest { Completed = true };
 
             _mockService.Setup(service => service.GetTaskByIdAsync(existingTask.Id, existingTask.UserId))
                         .ReturnsAsync(existingTask);
 
-            // Mock the taskItemService to return an UpdateResult with Updated set to false
             _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
-                .ReturnsAsync(new UpdateResult { Found = true, Updated = false });
+                        .ReturnsAsync(new UpdateResult { Found = true, Updated = false });
 
             // Act
-            var result = await _controller.Patch(existingTask.Id, completed: true) as NoContentResult;
+            var result = await _controller.Patch(existingTask.Id, updateRequest) as NoContentResult;
 
             // Assert
             Assert.Multiple(() =>
@@ -369,15 +373,16 @@ namespace TaskManager.API.Tests.Controllers
         {
             // Arrange
             var existingTask = new TaskItem { Id = "existing-id", Title = "Existing Task", Completed = false, UserId = "userId" };
+            var updateRequest = new UpdateTaskRequest { Completed = true };
 
             _mockService.Setup(service => service.GetTaskByIdAsync(existingTask.Id, existingTask.UserId))
                         .ReturnsAsync(existingTask);
 
             _mockService.Setup(service => service.UpdateTaskAsync(existingTask.Id, existingTask.UserId, existingTask))
-                .ThrowsAsync(new Exception("Something went wrong"));
+                        .ThrowsAsync(new Exception("Something went wrong"));
 
             // Act
-            var result = await _controller.Patch(existingTask.Id, completed: true) as ObjectResult;
+            var result = await _controller.Patch(existingTask.Id, updateRequest) as ObjectResult;
 
             // Assert
             Assert.Multiple(() =>
